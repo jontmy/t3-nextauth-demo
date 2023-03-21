@@ -5,7 +5,7 @@ import argon2 from "argon2";
 
 export const usersRouter = createTRPCRouter({
     create: publicProcedure
-        .input(z.object({ username: z.string().nonempty(), email: z.string().email(), password: z.string().min(8) }))
+        .input(z.object({ name: z.string().nonempty(), email: z.string().email(), password: z.string().min(8) }))
         .mutation(async ({ ctx, input }) => {
             await ctx.prisma.user.create({
                 data: {

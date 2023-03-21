@@ -7,7 +7,8 @@ export default function Page() {
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         register.mutate({
-            username: e.target.username.value,
+            // type errors can be ignored here, ts can't see the name props
+            name: e.target.name.value,
             email: e.target.email.value,
             password: e.target.password.value
         });
@@ -16,7 +17,7 @@ export default function Page() {
     return <form className="flex flex-col p-8 space-y-2" onSubmit={handleSubmit}>
         <label className="flex space-x-2 ">
             <p>Username</p>
-            <input type="text" name="username" />
+            <input type="text" name="name" />
         </label>
         <label className="flex space-x-2 ">
             <p>Email</p>

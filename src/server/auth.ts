@@ -3,7 +3,9 @@ import { type DefaultSession, getServerSession, type NextAuthOptions } from "nex
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/server/db";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { z } from "zod";
+import { env } from "@/env.mjs";
 import argon2 from "argon2";
 import { randomBytes, randomUUID } from "crypto";
 
@@ -40,7 +42,7 @@ export const authOptions: NextAuthOptions = {
                 if (user) {
                     token.id = user.id;
                     token.email = user.email;
-                    token.username = user.username;
+                    token.username = user.name;
                 }
                 console.table(token);
                 console.table(user);
@@ -49,7 +51,7 @@ export const authOptions: NextAuthOptions = {
             session({ session, token }) {
                 console.log("SESSION()");
                 if (token) {
-                    session.user.name = token.username;
+                    // session.user.name = token.username;
                 }
                 console.table(session);
                 console.table(token);
@@ -87,6 +89,17 @@ export const authOptions: NextAuthOptions = {
              *
              * @see https://next-auth.js.org/providers/github
              */
+            GoogleProvider({
+                clientId: env.GOOGLE_CLIENT_ID,
+                clientSecret: env.GOOGLE_CLIENT_SECRET,
+                authorization: {
+                    params: {
+                        prompt: "consent",
+                        access_type: "offline",
+                        response_type: "code"
+                    }
+                }
+            }),
             CredentialsProvider({
                 // The name to display on the sign in form (e.g. 'Sign in with...')
                 name: "Credentials",
@@ -95,7 +108,7 @@ export const authOptions: NextAuthOptions = {
                 // e.g. domain, username, password, 2FA token, etc.
                 // You can pass any HTML attribute to the <input> tag through the object.
                 credentials: {
-                    username: { label: "Username", type: "text", placeholder: "johndoe" },
+                    name: { label: "Username", type: "text", placeholder: "johndoe" },
                     password: { label: "Password", type: "password" }
                 },
                 async authorize(credentials, _) {
@@ -109,17 +122,17 @@ export const authOptions: NextAuthOptions = {
                         return null;
                     }
                     const schema = z.object({
-                        username: z.string().nonempty(),
+                        name: z.string().nonempty(),
                         password: z.string().nonempty()
                     });
                     const result = schema.safeParse(credentials);
                     if (!result.success) {
                         return null;
                     }
-                    const { username, password } = result.data;
+                    const { name, password } = result.data;
                     const user = await prisma.user.findUnique({
                         where: {
-                            username
+                            name
                         }
                     });
                     if (!user || user.password === null) {
