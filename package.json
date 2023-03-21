@@ -6,6 +6,7 @@
     "build": "next build",
     "dev": "next dev",
     "postinstall": "prisma generate",
+    "studio": "npx prisma studio",
     "lint": "next lint",
     "start": "next start"
   },
@@ -17,6 +18,7 @@
     "@trpc/next": "^10.9.0",
     "@trpc/react-query": "^10.9.0",
     "@trpc/server": "^10.9.0",
+    "argon2": "^0.30.3",
     "next": "^13.2.1",
     "next-auth": "^4.19.0",
     "react": "18.2.0",
