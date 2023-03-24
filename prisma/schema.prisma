@@ -51,7 +51,7 @@ model User {
     id            String    @id @default(cuid())
     name          String?   @unique
     email         String?   @unique
-    emailVerified DateTime?
+    emailVerified Boolean
     password      String?
     image         String?
     accounts      Account[]

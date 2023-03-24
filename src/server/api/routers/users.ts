@@ -6,12 +6,16 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/
 
 export const usersRouter = createTRPCRouter({
     create: publicProcedure
-        .input(z.object({ name: z.string().nonempty(), email: z.string().email(), password: z.string().min(8) }))
+        .input(z.object({ 
+            name: z.string().nonempty(), 
+            email: z.string().email(), 
+            password: z.string().min(8),
+        }))
         .mutation(async ({ ctx, input }) => {
-            
             await ctx.prisma.user.create({
                 data: {
                     ...input,
+                    emailVerified:false,
                     password: await argon2.hash(input.password)
                 }
             });

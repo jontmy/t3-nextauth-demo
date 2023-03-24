@@ -135,7 +135,7 @@ export const authOptions: NextAuthOptions = {
                             name
                         }
                     });
-                    if (!user || user.password === null) {
+                    if (!user || user.password === null || user.emailVerified == false) {
                         return null;
                     }
                     const isPasswordValid = await argon2.verify(user.password, password);

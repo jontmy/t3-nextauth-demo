@@ -1,52 +1,60 @@
 import {z} from "zod";
 import { type NextPage } from "next";
 import { type GetServerSideProps } from "next";
-import { getServerAuthSession } from "@/server/auth";
 import { useRouter } from 'next/router'
-import { api } from "@/utils/api";
 import { PrismaClient } from "@prisma/client";
+import Link from "next/link"
 
 const prisma = new PrismaClient();
-
 
 const Page: NextPage = () => {
     const router = useRouter();
     const uniqueString = router.query.id;
     return <div> 
-        {uniqueString} 
-        </div>
+        You have succesfully verified your email! 
+        <p>Click </p> 
+        <Link href = "/">
+            here
+        </Link>
+        <p> to login</p>
+    </div>
 }
 
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-    const uniqueString = await ctx.query.id
-    const bool = await prisma.emailVerification.delete({
+    const uniqueString = ctx.query.id
+
+    const info = await prisma.emailVerification.findFirst({
         where: {
-            identifier: uniqueString,
-        },
+            identifier: uniqueString
+        }
     })
+
+    try {
+        await prisma.user.update({
+                    where: {
+                        name: info.name
+                    },
+                    data: {
+                        emailVerified: true
+                    },
+        })
+    } catch (e) {
+       console.log(e)
+    } 
+
+    if (info) {
+        await prisma.emailVerification.delete({
+        where: {    
+            identifier: uniqueString,
+        }
+        })
+    }
+    
+
     return {
-        props: { },
+        props: {  },
     };
 };
-
-// Page.getInitialProps = async (ctx) => {
-//     const emailVerify = api.emailVerify.delete.useMutation();
-//     emailVerify.mutate({
-//         identifier: uniqueString
-//     })
-//     // const session = await getServerAuthSession(ctx);
-//     // if (session) {
-//     //     return {
-//     //         redirect: {
-//     //             destination: "/verify",
-//     //             permanent: false,
-//     //         },
-//     //     };
-//     // }
-//     // return {
-//     //     props: { session },
-//     // };
-// };
 
 export default Page;
